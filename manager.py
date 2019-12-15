@@ -17,7 +17,7 @@ class HolidayManager(object):
     def __init__(self, tempDate:datetime.date=None):
         if tempDate is not None:
             self.tempDate = tempDate
-            self.init_static_holidays()
+            self.init_static_holidays(year=self.tempDate.year)
         else:
             year = datetime.datetime.now().year
             self.init_static_holidays(year=year)
@@ -39,32 +39,72 @@ class HolidayManager(object):
         self.CHRISTMAS = datetime.date(year, 12, 25)
         self.STEPHEN = datetime.date(year, 12, 26)
 
-
-    def init_static_holidays(self) -> None:
-        """
-        Method that initialize static holidays date with tempDate valorized
-        :return: None
-        """
-        self.NEW_YEAR = datetime.date(self.tempDate.year, 1, 1)
-        self.EPIPHANY = datetime.date(self.tempDate.year, 1, 6)
-        self.LIBERATION = datetime.date(self.tempDate.year, 4, 25)
-        self.LABOUR_DAY = datetime.date(self.tempDate.year, 5, 1)
-        self.REPUBLIC_DAY = datetime.date(self.tempDate.year, 6, 2)
-        self.ASSUMPTION_DAY = datetime.date(self.tempDate.year, 8, 15)
-        self.ALL_SAINTS = datetime.date(self.tempDate.year, 11, 1)
-        self.IMMACULATE_DAY = datetime.date(self.tempDate.year, 12, 8)
-        self.CHRISTMAS = datetime.date(self.tempDate.year, 12, 25)
-        self.STEPHEN = datetime.date(self.tempDate.year, 12, 26)
-
-
-    def checkholidays(self, date: datetime.date):
+    def checkholidays(self, date: datetime.date) -> bool:
+        return self.checkeaster(date) or\
+               self.check_static_holidays(date) or\
+            self.check_weekend(date)
         pass
 
-    def checkeaster(self, date: datetime.date):
-        pass
+    def checkeaster(self, date: datetime.date) -> bool:
+        if date == self.calculate_easter(date.year):
+            return True
+        else:
+            return False
+
+    def check_static_holidays(self, date: datetime.date) -> bool:
+        if self.NEW_YEAR == date or\
+            self.EPIPHANY == date or\
+            self.LIBERATION == date or\
+            self.LABOUR_DAY == date or\
+            self.REPUBLIC_DAY == date or\
+            self.ASSUMPTION_DAY == date or\
+            self.ALL_SAINTS == date or\
+            self.IMMACULATE_DAY == date or\
+            self.CHRISTMAS == date or\
+                self.STEPHEN == date:
+            return True
+        else:
+            return False
 
     def check_weekend(self, date: datetime.date):
-        pass
+        if date.weekday() == 5 or date.weekday() == 6:
+            return True
+        else:
+            return False
 
-    def calculate_easter(self, date: datetime.date):
-        pass
+    def calculate_easter(self, year: int) -> datetime.date:
+        a = year % 19
+        b = year % 4
+        c = year % 7
+        d = ((19 * a) + self.get_M(year=year)) % 30
+        e = ((2 * b) + (4 * c) + (6 * d) + self.get_N(year=year)) % 7
+
+        month = 0
+        day = 0
+
+        if d+e < 10:
+            day = (d + e + 22)
+            month = 3
+        else:
+            day = (d + e - 9)
+            month = 4
+
+        return datetime.date(year, month, day)
+
+    def get_M(self, year: int) -> int:
+        if 1900 <= year <= 2199:
+            return 24
+        if (2200 <= year <= 2299) or (2400 <= year <= 2499):
+            return 25
+        if 2300 <= year <= 2399:
+            return 26
+
+    def get_N(self, year: int) -> int:
+        if 1900 <= year <= 2099:
+            return 5
+        if 2100 <= year <= 2199:
+            return 6
+        if 2200 <= year <= 2299:
+            return 0
+        if 2300 <= year <= 2499:
+            return 1
