@@ -14,6 +14,9 @@ class HolidayManager(object):
     CHRISTMAS = None
     STEPHEN = None
 
+    SATURDAY = 5
+    SUNDAY = 6
+
     def __init__(self, tempDate:datetime.date=None):
         if tempDate is not None:
             self.tempDate = tempDate
@@ -67,17 +70,22 @@ class HolidayManager(object):
             return False
 
     def check_weekend(self, date: datetime.date):
-        if date.weekday() == 5 or date.weekday() == 6:
+        if date.weekday() == self.SATURDAY or date.weekday() == self.SUNDAY:
             return True
         else:
             return False
 
     def calculate_easter(self, year: int) -> datetime.date:
+        """
+        Calculates easter date with Gauss method
+        :param year:
+        :return: easter date
+        """
         a = year % 19
         b = year % 4
         c = year % 7
-        d = ((19 * a) + self.get_M(year=year)) % 30
-        e = ((2 * b) + (4 * c) + (6 * d) + self.get_N(year=year)) % 7
+        d = ((19 * a) + self.__get_M(year=year)) % 30
+        e = ((2 * b) + (4 * c) + (6 * d) + self.__get_N(year=year)) % 7
 
         month = 0
         day = 0
@@ -91,7 +99,7 @@ class HolidayManager(object):
 
         return datetime.date(year, month, day)
 
-    def get_M(self, year: int) -> int:
+    def __get_M(self, year: int) -> int:
         if 1900 <= year <= 2199:
             return 24
         if (2200 <= year <= 2299) or (2400 <= year <= 2499):
@@ -99,7 +107,7 @@ class HolidayManager(object):
         if 2300 <= year <= 2399:
             return 26
 
-    def get_N(self, year: int) -> int:
+    def __get_N(self, year: int) -> int:
         if 1900 <= year <= 2099:
             return 5
         if 2100 <= year <= 2199:
